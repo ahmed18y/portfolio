@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ahmed Youssef — ML & Data Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #060a12;
+    --surface: #0d1625;
+    --surface2: #111e33;
+    --border: rgba(99,155,255,0.12);
+    --accent: #3d7eff;
+    --accent2: #00c8ff;
+    --text: #e8edf5;
+    --muted: #7a8ba8;
+    --card: #0f1d30;
+    --tag: rgba(61,126,255,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── noise overlay ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── glow blobs ── */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.18;
+  }
+  .blob-1 { width: 600px; height: 600px; background: var(--accent); top: -180px; left: -180px; }
+  .blob-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -100px; right: -100px; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5%;
+    height: 64px;
+    background: rgba(6,10,18,0.75);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    letter-spacing: 0.03em;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .nav-cv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), #2560d8);
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+  }
+  .nav-cv-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(61,126,255,0.4);
+  }
+
+  /* ── WRAPPER ── */
+  .content { position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 100px 5% 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .hero-inner { max-width: 680px; }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--tag);
+    border: 1px solid rgba(61,126,255,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    letter-spacing: 0.08em;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent2);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 520px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 26px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #2560d8);
+    color: #fff;
+    border: none;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(61,126,255,0.4); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 3rem;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .stat-item { }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION SHARED ── */
+  section { padding: 90px 5%; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .section-sub { color: var(--muted); margin-bottom: 3rem; max-width: 520px; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* ── SKILLS ── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .skill-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .skill-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .skill-cat {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.7rem;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    background: var(--tag);
+    border: 1px solid rgba(61,126,255,0.2);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── PROJECTS ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .project-card:hover { border-color: rgba(61,126,255,0.35); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .project-card:hover::before { opacity: 1; }
+  .project-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,200,255,0.1);
+    border: 1px solid rgba(0,200,255,0.25);
+    border-radius: 100px;
+    padding: 3px 12px;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+    width: fit-content;
+  }
+  .project-badge.live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #00e676;
+    animation: pulse 2s infinite;
+  }
+  .project-badge.academic { background: rgba(61,126,255,0.1); border-color: rgba(61,126,255,0.25); color: var(--accent); }
+  .project-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+  .project-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; flex: 1; margin-bottom: 1.2rem; }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.4rem; }
+  .project-links { display: flex; gap: 0.8rem; margin-top: auto; }
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .pl-live { background: linear-gradient(135deg, var(--accent), #2560d8); color: #fff; }
+  .pl-live:hover { box-shadow: 0 6px 20px rgba(61,126,255,0.4); }
+  .pl-github { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .pl-github:hover { border-color: var(--accent); }
+
+  /* ── COURSES ── */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.8rem;
+  }
+  .course-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.2rem;
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
+  }
+  .course-item:hover { border-color: var(--accent); }
+  .course-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    flex-shrink: 0;
+  }
+
+  /* ── CERT ── */
+  .cert-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    max-width: 600px;
+    transition: border-color 0.2s;
+  }
+  .cert-card:hover { border-color: rgba(255,153,0,0.4); }
+  .cert-logo {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,153,0,0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255,153,0,0.25);
+    font-size: 2rem;
+  }
+  .cert-name { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .cert-issuer { color: var(--muted); font-size: 0.85rem; }
+  .cert-badge { 
+    display: inline-block;
+    background: rgba(255,153,0,0.15);
+    border: 1px solid rgba(255,153,0,0.3);
+    color: #ffaa00;
+    border-radius: 100px;
+    padding: 2px 12px;
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    margin-top: 0.5rem;
+  }
+
+  /* ── CONTACT ── */
+  #contact {
+    padding: 90px 5%;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .contact-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 22px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.88rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .contact-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .contact-icon { font-size: 1.1rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* SVG icons inline */
+  .icon-github { display: inline-block; width: 16px; height: 16px; vertical-align: middle; }
+  .icon-ext { display: inline-block; width: 14px; height: 14px; vertical-align: middle; }
+
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .hero-stats { gap: 1.5rem; }
+    .cert-card { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav>
+  <span class="nav-logo">Ahmed Youssef</span>
+  <div class="nav-actions">
+    <div class="nav-links">
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="my_cv.pdf" target="_blank" rel="noopener noreferrer" class="nav-cv-btn">View my CV</a>
+  </div>
+</nav>
+
+<div class="content">
+
+<!-- HERO -->
+<section id="hero" style="padding-top:100px;">
+  <div class="hero-inner">
+    <div class="hero-tag">Open to Internships &amp; Opportunities</div>
+    <h1>Ahmed<br /><span>Youssef</span></h1>
+    <p class="hero-sub">
+      Machine Learning &amp; Data Science student at Alexandria University.
+      Building intelligent systems, analyzing data, and turning ideas into working products.
+    </p>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn btn-primary">
+        <svg class="icon-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19l-7-7 7-7m11 14V5"/></svg>
+        View Projects
+      </a>
+      <a href="https://www.linkedin.com/in/ahmed-youssef-752866363" target="_blank" class="btn btn-outline">LinkedIn</a>
+      <a href="https://github.com/ahmed18y" target="_blank" class="btn btn-outline">GitHub</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-val">3.66</div>
+        <div class="stat-label">GPA</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">2nd</div>
+        <div class="stat-label">Year</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">3+</div>
+        <div class="stat-label">Live Projects</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">AWS</div>
+        <div class="stat-label">Certified</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:1100px;margin:0 auto;"/>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label">What I Work With</div>
+  <h2 class="section-title">Technical Skills</h2>
+  <p class="section-sub">Core languages and tools I use to build and analyze.</p>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-cat">Languages</div>
+      <div class="skill-tags">
+        <span class="tag">Python</span>
+        <span class="tag">Java</span>
+        <span class="tag">R</span>
+        <span class="tag">SQL</span>
+        <span class="tag">C#</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-cat">ML / Data Science</div>
+      <div class="skill-tags">
+        <span class="tag">scikit-learn</span>
+        <span class="tag">Pandas</span>
+        <span class="tag">NumPy</span>
+        <span class="tag">Matplotlib</span>
+        <span class="tag">Seaborn</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-cat">Web / Frontend</div>
+      <div class="skill-tags">
+        <span class="tag">HTML</span>
+        <span class="tag">CSS</span>
+        <span class="tag">JavaScript</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-cat">Concepts</div>
+      <div class="skill-tags">
+        <span class="tag">Data Mining</span>
+        <span class="tag">Classification</span>
+        <span class="tag">Regression</span>
+        <span class="tag">Clustering</span>
+        <span class="tag">EDA</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-cat">Tools</div>
+      <div class="skill-tags">
+        <span class="tag">Git</span>
+        <span class="tag">Jupyter</span>
+        <span class="tag">Google Colab</span>
+        <span class="tag">VS Code</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-cat">Cloud</div>
+      <div class="skill-tags">
+        <span class="tag">AWS Foundations</span>
+        <span class="tag">Vercel</span>
+        <span class="tag">Netlify</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:1100px;margin:0 auto;"/>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">What I Built</div>
+  <h2 class="section-title">Projects</h2>
+  <p class="section-sub">Live products, academic ML work, and everything in between.</p>
+  <div class="projects-grid">
+
+    <!-- Financial Intelligence -->
+    <div class="project-card">
+      <div class="project-badge live">Live Product</div>
+      <div class="project-name">Financial Intelligence Platform</div>
+      <p class="project-desc">
+        A multi-user financial analysis dashboard with role-based access (admin / analyst). Enables data-driven investment decisions through interactive visualizations and analytical insights.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">Data Analysis</span>
+        <span class="tag">Dashboard</span>
+        <span class="tag">Authentication</span>
+      </div>
+      <div class="project-links">
+        <a href="https://financial-intelligence-ten.vercel.app/login" target="_blank" class="project-link pl-live">
+          <svg class="icon-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Demo
+        </a>
+        <a href="https://github.com/ahmed18y" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- REV-ORA -->
+    <div class="project-card">
+      <div class="project-badge live">Live Product</div>
+      <div class="project-name">REV_ORA — Auto Parts Store</div>
+      <p class="project-desc">
+        A professional e-commerce platform specializing in genuine spare parts for Volkswagen, SEAT, Skoda, and Audi vehicles. Clean UI with Arabic localization and product catalog.
+      </p>
+      <div class="project-tags">
+        <span class="tag">HTML/CSS/JS</span>
+        <span class="tag">E-Commerce</span>
+        <span class="tag">Arabic UI</span>
+        <span class="tag">Netlify</span>
+      </div>
+      <div class="project-links">
+        <a href="https://rev-ora.netlify.app/" target="_blank" class="project-link pl-live">
+          <svg class="icon-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Demo
+        </a>
+        <a href="https://github.com/ahmed18y" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- Coach Website -->
+    <div class="project-card">
+      <div class="project-badge live">Live Product</div>
+      <div class="project-name">Fitness Coach Website</div>
+      <p class="project-desc">
+        A complete personal branding website for a certified fitness coach with 6+ years of experience. Features training plans, client transformations gallery, animated hero section, and WhatsApp integration.
+      </p>
+      <div class="project-tags">
+        <span class="tag">HTML/CSS/JS</span>
+        <span class="tag">Animations</span>
+        <span class="tag">Responsive</span>
+        <span class="tag">Vercel</span>
+      </div>
+      <div class="project-links">
+        <a href="https://coach-gaper-fathy-website.vercel.app/" target="_blank" class="project-link pl-live">
+          <svg class="icon-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Demo
+        </a>
+        <a href="https://github.com/ahmed18y" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- ML Academic -->
+    <div class="project-card">
+      <div class="project-badge academic">Academic / ML</div>
+      <div class="project-name">Scouting System ML Analysis</div>
+      <p class="project-desc">
+        Collection of supervised and unsupervised ML models built during university coursework. Includes classification, regression, clustering, and model evaluation using scikit-learn and Python.
+        A machine learning project focused on FIFA player analysis, scouting, and performance evaluation using Python.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">scikit-learn</span>
+        <span class="tag">Pandas</span>
+        <span class="tag">Matplotlib</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/ahmed18y/Unified-Scouting-System-ML-Analysis" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-badge academic">Academic / ML</div>
+      <div class="project-name">Car Price Prediction ML</div>
+      <p class="project-desc">
+        Collection of supervised and unsupervised ML models built during university coursework. Includes classification, regression, clustering, and model evaluation using scikit-learn and Python.
+        This project is an end-to-end Machine Learning project focused on analyzing car price data and building predictive models for car price estimation and classification.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">scikit-learn</span>
+        <span class="tag">Pandas</span>
+        <span class="tag">Matplotlib</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/ahmed18y/Car-Price-Prediction-ML" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>    
+
+    <!-- Data Mining -->
+    <div class="project-card">
+      <div class="project-badge academic">Academic / Data Mining</div>
+      <div class="project-name">Data Mining &amp; Analysis</div>
+      <p class="project-desc">
+        Applied data mining techniques including association rules, clustering (K-Means, DBSCAN), and pattern discovery on real-world datasets. Built as part of the Data Mining course at Alexandria University.
+        This project applies Data Mining and Machine Learning techniques to analyze cardiovascular disease data and identify important health risk patterns among patients.  
+      </p>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">R</span>
+        <span class="tag">Clustering</span>
+        <span class="tag">Association Rules</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/ahmed18y/Cardiovascular-Disease-Data-Mining" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- Puzzle / Java -->
+    <div class="project-card">
+      <div class="project-badge academic">Academic / Java</div>
+      <div class="project-name"> Flight Booking System</div>
+      <p class="project-desc">
+        A Java-based flight reservation system that allows users to search for flights, book tickets, manage reservations, and handle customer accounts. The system includes separate roles for admin, agent, and customer with dedicated functionalities and a graphical user interface (GUI) for better user interaction.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Java</span>
+        <span class="tag">OOP</span>
+        <span class="tag">Data Structures</span>
+        <span class="tag">Algorithms</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/ahmed18y/Flight-Booking-System" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-badge academic">Academic / python</div>
+      <div class="project-name">Puzzle 16 </div>
+      <p class="project-desc">
+        An AI-based python implementation of the 15-puzzle using A* algorithm and Manhattan distance heuristic to efficiently find the optimal solution path.
+      </p>
+      <div class="project-tags">
+        <span class="tag">python</span>
+        <span class="tag">Data Structures</span>
+        <span class="tag">Algorithms</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/ahmed18y/Project-Puzzel-16-ai-solver-with-A-" target="_blank" class="project-link pl-github">
+          <svg class="icon-github" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:1100px;margin:0 auto;"/>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-label">Academic Background</div>
+  <h2 class="section-title">Education</h2>
+  <p class="section-sub">Faculty of Computer and Data Science, Alexandria University.</p>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2rem;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div class="section-label" style="margin-bottom:0.3rem;">Alexandria University</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:0.3rem;">B.Sc. Computer &amp; Data Science</div>
+        <div style="color:var(--muted);font-size:0.88rem;">2nd Year &bull; Expected Graduation 2028</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">3.66</div>
+        <div style="color:var(--muted);font-size:0.78rem;">GPA</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:1rem;">Completed Coursework</div>
+  <div class="courses-grid">
+    <div class="course-item"><div class="course-dot"></div>Linear Algebra</div>
+    <div class="course-item"><div class="course-dot"></div>Probability &amp; Statistics</div>
+    <div class="course-item"><div class="course-dot"></div>Data Structures &amp; Algorithms</div>
+    <div class="course-item"><div class="course-dot"></div>Machine Learning</div>
+    <div class="course-item"><div class="course-dot"></div>Data Mining</div>
+    <div class="course-item"><div class="course-dot"></div>Numerical Methods</div>
+    <div class="course-item"><div class="course-dot"></div>System Analysis &amp; Design</div>
+    <div class="course-item"><div class="course-dot"></div>Financial Planning</div>
+    <div class="course-item"><div class="course-dot"></div>Programming Fundamentals</div>
+    <div class="course-item"><div class="course-dot"></div>Accounting</div>
+    <div class="course-item"><div class="course-dot"></div>Intro to Business</div>
+    <div class="course-item"><div class="course-dot"></div>Other Courses</div>
+  </div>
+
+  <div class="section-label" style="margin:2.5rem 0 1rem;">Certification</div>
+  <div class="cert-card">
+    <div class="cert-logo">&#9729;</div>
+    <div>
+      <div class="cert-name">AWS Academy Cloud Foundations</div>
+      <div class="cert-issuer">Amazon Web Services (AWS Academy) &bull; 2024</div>
+      
+    </div>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:1100px;margin:0 auto;"/>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label">Get In Touch</div>
+  <h2 class="section-title">Contact</h2>
+  <p style="color:var(--muted);margin-bottom:0;">Open to internships, collaborations, and freelance opportunities.</p>
+  <div class="contact-grid">
+    <a href="mailto:ay1751765@gmail.com" class="contact-item">
+      <span class="contact-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </span>
+      ay1751765@gmail.com
+    </a>
+    <a href="tel:+201558324948" class="contact-item">
+      <span class="contact-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.15a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </span>
+      +20 155 832 4948
+    </a>
+    <a href="https://www.linkedin.com/in/ahmed-youssef-752866363" target="_blank" rel="noopener noreferrer" class="contact-item" aria-label="Ahmed Youssef on LinkedIn">
+      <span class="contact-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zm2-6a2 2 0 100 4 2 2 0 000-4z"/></svg>
+      </span>
+      Ahmed Youssef
+    </a>
+    <a href="https://github.com/ahmed18y" target="_blank" class="contact-item">
+      <span class="contact-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.920-.359.31-.678.921-.678 1.856 0 1.338.012 2.419.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      </span>
+      ahmed18y
+    </a>
+  </div>
+</section>
+
+<footer>
+  Built by Ahmed Youssef &bull; Faculty of Computer and Data Science, Alexandria University &bull; 2025
+</footer>
+
+</div><!-- /.content -->
+</body>
+</html>
